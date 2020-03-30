@@ -1,29 +1,62 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
-import Home from '../views/Home.vue';
+import Vue from 'vue'
+import VueRouter, {RouteConfig} from 'vue-router'
+import NotFound from '@/components/NotFound'
 
-Vue.use(VueRouter);
+Vue.use(VueRouter)
 
+/**
+ * @type {RouteConfig[]}
+ */
 const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home,
+    name: 'Welcome',
+    path: '/welcome',
+    component: () => import(/* webpackChunkName: "welcome" */ '@/views/Welcome.vue')
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+    path: '/home',
+    component: () => import(/* webpackChunkName: "home" */ '@/views/Home.vue'),
+    children: [
+      {
+        name: 'Helps',
+        path: '',
+        component: () => import(/* webpackChunkName: "home" */ '@/components/home/Helps.vue')
+      },
+      {
+        name: 'MyHelps',
+        path: 'my-helps',
+        component: () => import(/* webpackChunkName: "home" */ '@/components/home/MyHelps.vue')
+      },
+      {
+        name: 'Profile',
+        path: 'profile',
+        component: () => import(/* webpackChunkName: "home" */ '@/components/home/Profile.vue')
+      },
+      {
+        name: 'HelpChat',
+        path: 'help-chat/:helpId',
+        props: true,
+        component: () => import(/* webpackChunkName: "helpChat" */ '@/components/home/HelpChat.vue')
+      }
+    ]
   },
-];
+  {
+    name: 'NotFound',
+    path: '*',
+    component: NotFound
+  }
+]
 
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
-  routes,
-});
+  routes
+})
 
-export default router;
+router.beforeEach((from, to, next) => {
+  if (from.fullPath !== to.fullPath) {
+    next()
+  }
+})
+
+export default router
