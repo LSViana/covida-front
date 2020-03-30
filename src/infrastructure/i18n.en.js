@@ -9,16 +9,27 @@ export default {
     yourAddress: 'Your address',
     helps: 'Helps',
     myHelps: 'My helps',
+    myRequests: 'My requests',
     help: 'Help',
     map: 'Map',
     profile: 'Profile',
-    needs: 'Needs'
+    needs: 'Needs',
+    amount: 'Amount'
   },
   actions: {
     begin: 'Start',
     goHome: 'Go home',
     help: 'Help',
     chat: 'Chat',
+    finish: 'Finish',
+    request: 'Ask for help',
+    next: 'Next',
+    previous: 'Previous',
+    add: 'Add'
+  },
+  informationMessages: {
+    itemXWasUpdated: 'Item {0} was updated',
+    helpFinished: 'Help finished'
   },
   validationMessages: {
     fieldIsRequired: '{_field_} is required',
@@ -41,5 +52,13 @@ export default {
   helps: {
     fromYou: 'from you',
     createdAt: 'Created at'
+  },
+  askForHelp: {
+    whatAreTheCategoriesOfYourNeeds: 'What are the categories of your needs?',
+    whatAreTheItemsYouNeed: 'What are the items you need?',
+    allHelpItemsMustHaveAName: 'All help items must have a name with 2-64 characters',
+    selectOneOrMoreCategories: 'Select one or more categories',
+    youMustCreateAtLeastOneHelpItem: 'You must create at least one help item',
+    helpItems: 'Help items'
   }
 }

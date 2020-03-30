@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-3">
+  <div class="my-helps pa-3">
     <transition name="scroll-x-transition" mode="out-in">
       <v-progress-circular v-if="helpsLoading" indeterminate color="primary"/>
       <p v-else-if="helps.length === 0">
@@ -17,6 +17,9 @@
               {{ help.user.name }}
             </v-card-title>
             <v-card-text>
+              <p class="body-1">
+                {{ help.user.address }}
+              </p>
               <span class="caption">
                 {{ i18n.createdAt }} {{new Date(help.createdAt).toLocaleString()}}
               </span>
@@ -40,9 +43,9 @@
                       v-for="helpItem in help.helpItems"
                       :key="helpItem.id"
                       v-model="helpItem.complete"
-                      :label="helpItem.name"
+                      :label="`${helpItem.amount}x ${helpItem.name}`"
                       @change="updateHelpItem(helpItem.id, $event)"
-                      :disabled="helpItemUpdating"
+                      :disabled="helpItemUpdating || !$root.user.isVolunteer"
                     />
                   </v-expansion-panel-content>
                 </v-expansion-panel>
@@ -55,6 +58,15 @@
                 color="primary"
               >
                 {{ i18n.chat }}
+              </v-btn>
+              <v-btn
+                v-if="$root.user.isVolunteer"
+                @click="finishHelp(help.id)"
+                text
+                color="primary"
+                :disabled="helpItemUpdating"
+              >
+                {{ i18n.finish }}
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -76,15 +88,24 @@
         ...I18n.names,
         ...I18n.actions,
         ...I18n.helps,
-        ...I18n.errorMessages
+        ...I18n.errorMessages,
+        ...I18n.informationMessages
       },
       helps: [],
       helpsLoading: false,
       helpItemUpdating: false
     }),
-    async created() {
-      signalRConnection.off('updateHelpItem', this.updateHelpItemComplete)
+    mounted() {
+      // SignalR event handlers
       signalRConnection.on('updateHelpItem', this.updateHelpItemComplete)
+      signalRConnection.on('helpFinished', this.helpFinished)
+    },
+    beforeDestroy() {
+      // SignalR event handlers
+      signalRConnection.off('updateHelpItem', this.updateHelpItemComplete)
+      signalRConnection.off('helpFinished', this.helpFinished)
+    },
+    async created() {
       // Fetch helps
       const response = await fetchCovida(
         // TODO (LSViana) Improve pagination
@@ -99,21 +120,36 @@
       }
     },
     methods: {
+      async finishHelp(helpId) {
+        this.helpItemUpdating = true
+        const response = fetchCovida(`/help/finish/${helpId}`)
+        if (response.status === 204) {
+          // Success
+        } else {
+          this.$root.$children[0].showSnackBar(this.i18n.connectionError)
+        }
+        this.helpItemUpdating = false
+      },
+      helpFinished(helpId) {
+        this.helps = this.helps.filter(x => x.id !== helpId)
+        this.$root.$children[0].showSnackbar(this.i18n.helpFinished)
+      },
       openChat(helpId) {
         this.$router.push(`/home/help-chat/${helpId}`)
       },
       updateHelpItemComplete(helpItemId, complete) {
-        helpLoop:
-          for (const help of this.helps) {
-            for (const helpItem of help.items) {
-              if (helpItem.id === helpItemId) {
-                console.log('achei')
-                helpItem.complete = complete
-                // This is a special break to get out of both for(...)
-                break helpLoop
-              }
+        let foundHelpItem = false
+        for (const help of this.helps) {
+          for (const helpItem of help.helpItems) {
+            if (helpItem.id === helpItemId) {
+              foundHelpItem = true
+              helpItem.complete = complete
+              this.$root.$children[0].showSnackBar(this.i18n.itemXWasUpdated.replace("{0}", helpItem.name))
+              break
             }
           }
+          if (foundHelpItem) break
+        }
       },
       async updateHelpItem(helpItemId, complete) {
         this.helpItemUpdating = true
@@ -130,6 +166,10 @@
   }
 </script>
 
-<style scoped>
-
+<style lang="scss">
+  .my-helps {
+    height: calc(100% - 72px);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
 </style>

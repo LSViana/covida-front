@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-3">
+  <div class="helps pa-3">
     <transition name="scroll-x-transition" mode="out-in">
       <v-progress-circular v-if="helpsLoading" indeterminate color="primary"/>
       <p v-else-if="helps.length === 0">
@@ -68,20 +68,17 @@
       },
       helps: [],
       helpsLoading: false,
-      helpsLastFetch: new Date(0),
-      initializedOnce: false
+      helpsLastFetch: new Date(0)
     }),
+    mounted() {
+      signalRConnection.on("newHelp", this.addNewHelp)
+      signalRConnection.on("helpAnswered", this.helpAnswered)
+    },
+    beforeDestroy() {
+      signalRConnection.off("newHelp", this.addNewHelp)
+      signalRConnection.off("helpAnswered", this.helpAnswered)
+    },
     async created() {
-      // Verify if it's the first creation
-      if (!this.initializedOnce) {
-        // Setting the flag
-        this.initializedOnce = true
-        // SignalR event handlers
-        signalRConnection.off("newHelp", this.addNewHelp)
-        signalRConnection.on("newHelp", this.addNewHelp)
-        signalRConnection.off("helpAnswered", this.helpAnswered)
-        signalRConnection.on("helpAnswered", this.helpAnswered)
-      }
       // Verify if it should refetch
       const now = new Date()
       if ((now.getTime() - this.helpsLastFetch.getTime()) > 10 * 60 * 1000) { // 10 minutes
@@ -133,6 +130,10 @@
   }
 </script>
 
-<style scoped>
-
+<style lang="scss">
+  .helps {
+    height: calc(100% - 72px);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
 </style>

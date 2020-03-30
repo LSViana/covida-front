@@ -28,6 +28,11 @@ const routes = [
         component: () => import(/* webpackChunkName: "home" */ '@/components/home/MyHelps.vue')
       },
       {
+        name: 'AskForHelp',
+        path: 'ask-for-help',
+        component: () => import(/* webpackChunkName: "home" */ '@/components/home/AskForHelp.vue')
+      },
+      {
         name: 'Profile',
         path: 'profile',
         component: () => import(/* webpackChunkName: "home" */ '@/components/home/Profile.vue')
@@ -35,6 +40,10 @@ const routes = [
       {
         name: 'HelpChat',
         path: 'help-chat/:helpId',
+        meta: {
+          hasBack: true,
+          hasInput: true
+        },
         props: true,
         component: () => import(/* webpackChunkName: "helpChat" */ '@/components/home/HelpChat.vue')
       }

@@ -168,7 +168,7 @@
           this.$root.saveUserData()
           this.$root.saveToken(covidaResponseData.token)
           // Redirect to home page
-          this.$router.push('/')
+          this.$router.push('/home/my-helps')
         } else {
           // TODO (LSViana) Add custom handling for authentication error
         }
