@@ -3,7 +3,6 @@ const express = require('express')
 const serveStatic = require('serve-static')
 const history = require('connect-history-api-fallback')
 const helmet = require('helmet')
-const rfs = require('rotating-file-stream')
 const morgan = require('morgan')
 const path = require('path')
 
@@ -33,15 +32,6 @@ app.use(function (req, res, next) {
   }
   return next()
 })
-
-// create a rotating write stream
-var accessLogStream = rfs('access.log', {
-  interval: '1d', // rotate daily
-  path: path.join(__dirname, 'log')
-})
-
-// setup the logger
-app.use(morgan('combined', {stream: accessLogStream}))
 
 // At this point app is configured for use SPA history mode
 // The first option disables the need for 'login.html', so you may use 'login'
