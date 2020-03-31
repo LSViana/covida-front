@@ -181,8 +181,8 @@
           if (responseData.results.length > 0) {
             const addressGeometry = responseData.results[0].geometry
             this.$root.user.location = {
-              latitude: addressGeometry.lng,
-              longitude: addressGeometry.lat
+              latitude: addressGeometry.lat,
+              longitude: addressGeometry.lng
             }
             this.locationAllowed = false
             this.locationValid = true
